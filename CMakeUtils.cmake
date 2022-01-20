@@ -19,9 +19,18 @@ function(ADD_GIT_DEPENDENCY_FN depPath depTarget depRepo)
 
 	# Ignore if target already exists
 	if (NOT TARGET ${depTarget})
-	 
+	
+		# Add the cloned repo as a subdir if it has CMake support
+		if (EXISTS "${depPath}/CMakeLists.txt")
+			add_subdirectory("${depPath}")
+		
+			# Check that dependency target is now defined
+			if (NOT TARGET ${depTarget})
+				message(FATAL_ERROR "Cloned dependency has a CMakeLists but the dependency target was not defined!")
+			endif()
+
 		# Only preform branch if git dependencies are allowed
-		if (ENABLE_GIT_DEPENDENCIES)
+		else (ENABLE_GIT_DEPENDENCIES)
 	
 			#
 			# Add the dependecy directory if it exists, or clone it from the github repo url if not
